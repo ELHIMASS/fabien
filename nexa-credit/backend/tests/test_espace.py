@@ -114,3 +114,17 @@ def test_lien_inconnu_et_session_absente():
 def test_jeton_client_refuse_cote_courtier(courtier):
     from app.security import create_client_token, read_token
     assert read_token(create_client_token(1)) is None
+
+
+def test_sauvegarde_restauration(courtier, tmp_path, monkeypatch):
+    from app import sauvegarde as s
+    monkeypatch.setattr(s, "SAUVEGARDE_DIR", tmp_path)
+    d = _dossier(courtier)
+    f = s.sauvegarder()
+    assert f.exists() and b"SQLite" not in f.read_bytes()  # archive chiffrée
+    courtier.delete(f"/api/rgpd/effacer/{d['id']}?confirmation={d['ref']}", headers=H)
+    from app.db import engine
+    engine.dispose()
+    s.restaurer(f)
+    engine.dispose()
+    assert courtier.get(f"/api/dossiers/{d['id']}").status_code == 200

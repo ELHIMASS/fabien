@@ -38,6 +38,11 @@ JWT_SECRET = _secret("NEXA_JWT_SECRET", lambda: secrets.token_urlsafe(48))
 FILE_KEY = _secret("NEXA_FILE_KEY", _fernet_key)
 
 SESSION_HOURS = int(os.environ.get("NEXA_SESSION_HOURS", "10"))
-COOKIE_SECURE = ENV == "prod"
+# Cookie « Secure » (HTTPS obligatoire) activé en production. NEXA_COOKIE_SECURE=0 permet
+# un accès de test en HTTP sur le réseau local : à ne jamais utiliser depuis Internet.
+COOKIE_SECURE = os.environ.get("NEXA_COOKIE_SECURE", "1" if ENV == "prod" else "0") == "1"
+DOCS_API = os.environ.get("NEXA_DOCS_API", "0" if ENV == "prod" else "1") == "1"
+SAUVEGARDE_DIR = Path(os.environ.get("NEXA_SAUVEGARDE_DIR", DATA_DIR / "sauvegardes"))
+SAUVEGARDE_CONSERVER = int(os.environ.get("NEXA_SAUVEGARDE_CONSERVER", "30"))
 MAX_UPLOAD_MB = int(os.environ.get("NEXA_MAX_UPLOAD_MB", "15"))
 ALLOWED_MIME = {"application/pdf", "image/jpeg", "image/png", "image/heic", "image/webp"}

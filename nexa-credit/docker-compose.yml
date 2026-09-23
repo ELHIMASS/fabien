@@ -1,0 +1,37 @@
+# Démarrage : cp .env.example .env  →  compléter .env  →  docker compose up -d --build
+services:
+  nexa:
+    build: .
+    image: nexa-credit:local
+    container_name: nexa-credit
+    restart: unless-stopped
+    # Utilisateur du NAS propriétaire du dossier ./data (commande `id` en SSH). Jamais root.
+    user: "${NEXA_UID:-1000}:${NEXA_GID:-1000}"
+    env_file: .env
+    environment:
+      NEXA_ENV: prod
+      NEXA_DATA_DIR: /data
+    volumes:
+      - ./data:/data
+    # Accès depuis le réseau local uniquement (http://IP-DU-NAS:8000).
+    # Ne JAMAIS rediriger ce port sur la box : l'accès Internet passe par le tunnel ci-dessous.
+    ports:
+      - "${NEXA_PORT_LOCAL:-8000}:8000"
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+
+  # Accès Internet en HTTPS sans ouvrir de port sur la box (Cloudflare Tunnel).
+  # Activé avec : docker compose --profile internet up -d
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: nexa-tunnel
+    restart: unless-stopped
+    profiles: ["internet"]
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN:-}  # à renseigner dans .env pour le profil « internet »
+    depends_on:
+      - nexa

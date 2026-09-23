@@ -36,6 +36,10 @@ Logiciel de gestion des dossiers de crédit immobilier pour courtiers IOBSP.
 - Journal d'audit : connexions, échecs, consultations, modifications, exports, effacements, accès et dépôts clients
 - Espace client : jeton de lien stocké haché (SHA-256), code haché (Argon2), session client distincte et limitée à `/api/espace` (2 h)
 
+## Installation sur un NAS (Docker)
+
+Voir **[INSTALLATION-NAS.md](INSTALLATION-NAS.md)** : conteneur Docker, accès HTTPS par Cloudflare Tunnel, sauvegardes chiffrées quotidiennes.
+
 ## Démarrage local
 
 ```bash

@@ -1,2 +1,2 @@
 [tool.vercel]
-entrypoint = "nexa-credit.backend.app.main:app"
+entrypoint = "nexa-credit/backend/app/main.py"

@@ -10,7 +10,7 @@ async function request(method, url, body, isForm = false) {
     else { opts.headers["content-type"] = "application/json"; opts.body = JSON.stringify(body); }
   }
   const r = await fetch(url, opts);
-  if (r.status === 401 && !url.startsWith("/api/auth/")) {
+  if (r.status === 401 && !url.startsWith("/api/auth/") && !url.startsWith("/api/espace")) {
     window.dispatchEvent(new Event("nexa:deconnecte"));
   }
   if (!r.ok) {

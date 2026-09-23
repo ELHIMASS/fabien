@@ -346,18 +346,7 @@ function Pieces({ d, a, act, base, toast }) {
     }
     setBusy(null);
   };
-  const Doc = ({ x }) => (
-    <div className="doc">
-      <a href={`${base}/documents/${x.id}/fichier`} target="_blank" rel="noreferrer">{x.nom_fichier}</a>
-      <span className="muted small">{(x.taille / 1024).toFixed(0)} Ko · {fdatetime(x.created_at)}</span>
-      <span className={`pill ${x.statut === "valide" ? "ok" : x.statut === "refuse" ? "bad" : "warn"}`}>{x.statut === "recu" ? "à contrôler" : x.statut}</span>
-      <span style={{ marginLeft: "auto" }} className="row">
-        {x.statut !== "valide" && <button className="btn small" onClick={() => act(() => api.patch(`${base}/documents/${x.id}`, { statut: "valide" }))}>Valider</button>}
-        {x.statut !== "refuse" && <button className="btn small" onClick={() => act(() => api.patch(`${base}/documents/${x.id}`, { statut: "refuse" }))}>Refuser</button>}
-        <ConfirmButton label="Supprimer" onConfirm={() => act(() => api.del(`${base}/documents/${x.id}`))} />
-      </span>
-    </div>
-  );
+  const Doc = ({ x }) => <DocLigne x={x} base={base} act={act} />;
 
   return (
     <div className="grid g2">
@@ -382,6 +371,8 @@ function Pieces({ d, a, act, base, toast }) {
           <div className="stack" style={{ gap: 4 }}>{autres.map(x => <Doc key={x.id} x={x} />)}</div>
         </>}
       </div>
+      <div className="stack">
+      <EspacePanel d={d} base={base} toast={toast} />
       <div className="panel">
         <div className="row between" style={{ marginBottom: 10 }}>
           <h3 style={{ margin: 0 }}>Mail de relance client</h3>
@@ -389,6 +380,96 @@ function Pieces({ d, a, act, base, toast }) {
         </div>
         {syn?.relance ? <pre className="synth">{syn.relance}</pre> : <div className="alert ok">Toutes les pièces attendues sont reçues.</div>}
       </div>
+      </div>
+    </div>
+  );
+}
+
+function DocLigne({ x, base, act }) {
+  const [refus, setRefus] = useState(null); // null = fermé, sinon motif en cours de saisie
+  return (
+    <div className="doc">
+      <a href={`${base}/documents/${x.id}/fichier`} target="_blank" rel="noreferrer">{x.nom_fichier}</a>
+      <span className="muted small">{(x.taille / 1024).toFixed(0)} Ko · {fdatetime(x.created_at)}</span>
+      {x.source === "client" && <span className="pill info">déposé par le client</span>}
+      <span className={`pill ${x.statut === "valide" ? "ok" : x.statut === "refuse" ? "bad" : "warn"}`}>{x.statut === "recu" ? "à contrôler" : x.statut}</span>
+      {x.statut === "refuse" && x.commentaire && <span className="small" style={{ color: "var(--bad)" }}>Motif : {x.commentaire}</span>}
+      <span style={{ marginLeft: "auto" }} className="row">
+        {x.statut !== "valide" && <button className="btn small" onClick={() => act(() => api.patch(`${base}/documents/${x.id}`, { statut: "valide" }))}>Valider</button>}
+        {x.statut !== "refuse" && refus === null && <button className="btn small" onClick={() => setRefus("")}>Refuser</button>}
+        <ConfirmButton label="Supprimer" onConfirm={() => act(() => api.del(`${base}/documents/${x.id}`))} />
+      </span>
+      {refus !== null && (
+        <form className="row" style={{ width: "100%" }} onSubmit={e => { e.preventDefault(); act(() => api.patch(`${base}/documents/${x.id}`, { statut: "refuse", commentaire: refus.trim() })); setRefus(null); }}>
+          <input id={`motif-${x.id}`} className="input" style={{ flex: "1 1 220px" }} autoFocus placeholder="Motif visible par le client (ex. : pièce expirée, page manquante)" value={refus} onChange={e => setRefus(e.target.value)} />
+          <button type="button" className="btn small" onClick={() => setRefus(null)}>Annuler</button>
+          <button className="btn small danger">Refuser</button>
+        </form>)}
+    </div>
+  );
+}
+
+function EspacePanel({ d, base, toast }) {
+  const [esp, setEsp] = useState(undefined);
+  const [nouveau, setNouveau] = useState(null); // lien + code, affichés une seule fois
+  useEffect(() => { api.get(`${base}/espace`).then(setEsp).catch(() => setEsp(null)); }, [base, d.updated_at]);
+  const creer = async () => {
+    try { const r = await api.post(`${base}/espace`); setNouveau({ url: window.location.origin + r.chemin, code: r.code }); setEsp(r); }
+    catch (e) { toast(e.message, true); }
+  };
+  const revoquer = async () => {
+    try { setEsp(await api.del(`${base}/espace`)); setNouveau(null); toast("Accès client révoqué"); }
+    catch (e) { toast(e.message, true); }
+  };
+  const prenoms = d.emprunteurs.map(e => e.prenom).filter(Boolean).join(" et ");
+  const msgLien = nouveau && `Bonjour${prenoms ? ` ${prenoms}` : ""},
+
+Pour avancer sur votre dossier de financement, vous pouvez déposer vos justificatifs directement ici :
+${nouveau.url}
+
+Je vous envoie le code d'accès par SMS, séparément.
+
+Bien cordialement,`;
+  const msgCode = nouveau && `Votre code d'accès pour déposer vos justificatifs : ${nouveau.code}`;
+  const actif = esp?.statut === "actif";
+  const tone = { actif: "ok", "expiré": "neutral", "révoqué": "neutral", "verrouillé": "bad" };
+  if (esp === undefined) return null;
+  return (
+    <div className="panel">
+      <div className="row between" style={{ marginBottom: 10 }}>
+        <h3 style={{ margin: 0 }}>Espace client</h3>
+        {esp && <span className={`pill ${tone[esp.statut]}`}>{esp.statut}</span>}
+      </div>
+      {nouveau ? (
+        <div className="stack">
+          <div className="alert attention">Le lien et le code ne s'affichent qu'une fois. Envoyez-les <strong>par deux canaux différents</strong> : le lien par e-mail, le code par SMS.</div>
+          <div className="lines">
+            <div className="line"><span className="k">Lien</span><span className="num small" style={{ wordBreak: "break-all", textAlign: "right" }}>{nouveau.url}</span></div>
+            <div className="line"><span className="k">Code</span><span className="num" style={{ fontSize: 20, letterSpacing: ".2em" }}>{nouveau.code}</span></div>
+          </div>
+          <div className="row">
+            <button className="btn small" onClick={() => copier(msgLien, toast)}>Copier le mail avec le lien</button>
+            <button className="btn small" onClick={() => copier(msgCode, toast)}>Copier le SMS avec le code</button>
+            <button className="btn ghost small" onClick={() => setNouveau(null)}>J'ai envoyé</button>
+          </div>
+        </div>
+      ) : (
+        <div className="stack">
+          {!esp && <p className="muted small" style={{ margin: 0 }}>Le client reçoit un lien et un code pour déposer lui-même ses pièces depuis son téléphone. Il ne voit ni les montants ni l'analyse du dossier.</p>}
+          {esp && <div className="lines small">
+            <Line k="Créé le" v={fdatetime(esp.created_at)} />
+            <Line k="Expire le" v={fdate(esp.expire_le)} />
+            <Line k="Dernière visite du client" v={esp.dernier_acces ? fdatetime(esp.dernier_acces) : "jamais"} />
+            <Line k="Fichiers déposés" v={esp.nb_depots} />
+            {esp.echecs > 0 && <Line k="Codes erronés" v={esp.echecs} />}
+          </div>}
+          <div className="row">
+            <button className="btn primary small" onClick={creer}>{esp ? "Générer un nouveau lien" : "Créer l'accès client"}</button>
+            {actif && <ConfirmButton label="Révoquer l'accès" confirm="Révoquer" onConfirm={revoquer} />}
+          </div>
+          {esp && actif && <p className="muted small" style={{ margin: 0 }}>Le code n'est plus affichable. S'il est perdu, générez un nouveau lien : l'ancien sera désactivé.</p>}
+        </div>
+      )}
     </div>
   );
 }

@@ -171,7 +171,24 @@ class Document(Base):
     sha256: Mapped[str] = mapped_column(String(64))
     commentaire: Mapped[str] = mapped_column(Text, default="")
     depose_par: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    source: Mapped[str] = mapped_column(String(10), default="cabinet")  # cabinet | client
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+
+class EspaceClient(Base):
+    """Accès du client à son dossier pour déposer ses pièces : lien secret + code à 6 chiffres."""
+    __tablename__ = "espaces_client"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    dossier_id: Mapped[int] = mapped_column(ForeignKey("dossiers.id", ondelete="CASCADE"), index=True)
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True, index=True)  # SHA-256 du jeton du lien
+    code_hash: Mapped[str] = mapped_column(String(300))  # Argon2 du code
+    expire_le: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    revoque: Mapped[bool] = mapped_column(Boolean, default=False)
+    echecs: Mapped[int] = mapped_column(Integer, default=0)
+    cree_par: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+    dernier_acces: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    nb_depots: Mapped[int] = mapped_column(Integer, default=0)
 
 
 class Tache(Base):

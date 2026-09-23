@@ -46,10 +46,10 @@ def categories(dossier_id: int):
     return PIECES
 
 
-@router.post("", response_model=DocumentOut)
-async def deposer(dossier_id: int, request: Request, categorie: str = Form(...), emprunteur_id: int | None = Form(None),
-                  fichier: UploadFile = File(...), user: m.User = Depends(current_user), db: Session = Depends(get_db)):
-    d = get_dossier(dossier_id, db, user)
+async def enregistrer_fichier(db: Session, d: m.Dossier, categorie: str, fichier: UploadFile,
+                              emprunteur_id: int | None = None, user_id: int | None = None,
+                              source: str = "cabinet") -> m.Document:
+    """Contrôle, chiffre et enregistre un fichier déposé (par le cabinet ou par le client)."""
     if categorie not in PIECES and categorie != "autre":
         raise HTTPException(422, "Catégorie de pièce inconnue.")
     if emprunteur_id is not None and emprunteur_id not in {e.id for e in d.emprunteurs}:
@@ -69,10 +69,18 @@ async def deposer(dossier_id: int, request: Request, categorie: str = Form(...),
     nom = (fichier.filename or "document").replace("/", "_").replace("\\", "_")[:255]
     doc = m.Document(dossier_id=d.id, emprunteur_id=emprunteur_id, categorie=categorie, nom_fichier=nom,
                      chemin=str(chemin.relative_to(UPLOAD_DIR)), mime=mime, taille=len(data),
-                     sha256=hashlib.sha256(data).hexdigest(), depose_par=user.id)
+                     sha256=hashlib.sha256(data).hexdigest(), depose_par=user_id, source=source)
     db.add(doc)
     d.updated_at = m.now()
     db.flush()
+    return doc
+
+
+@router.post("", response_model=DocumentOut)
+async def deposer(dossier_id: int, request: Request, categorie: str = Form(...), emprunteur_id: int | None = Form(None),
+                  fichier: UploadFile = File(...), user: m.User = Depends(current_user), db: Session = Depends(get_db)):
+    d = get_dossier(dossier_id, db, user)
+    doc = await enregistrer_fichier(db, d, categorie, fichier, emprunteur_id, user.id)
     log(db, user, "document_depose", "dossier", d.id, {"document": doc.id, "categorie": categorie}, request)
     db.commit()
     return doc

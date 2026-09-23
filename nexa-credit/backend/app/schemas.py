@@ -211,6 +211,7 @@ class DocumentOut(ORM):
     mime: str
     taille: int
     commentaire: str
+    source: str
     created_at: datetime
 
 

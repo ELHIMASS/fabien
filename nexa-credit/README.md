@@ -13,6 +13,7 @@ Logiciel de gestion des dossiers de crédit immobilier pour courtiers IOBSP.
 | Moteur de calcul | Mensualités, tableau d'amortissement, coût total, TAEG estimé (actuariel), capacité d'emprunt |
 | Contrôles automatiques | Endettement et durée HCSF, usure, apport supérieur à l'épargne, épargne résiduelle, reste à vivre, saut de charge, période d'essai, CDD, TNS de moins de 3 ans, âge en fin de prêt, pièces manquantes, échéance de la condition suspensive |
 | Pièces | Liste générée selon le profil (salarié, TNS, SCI, locatif, relais, construction…), dépôt de fichiers **chiffrés**, statuts à contrôler / validée / refusée, mail de relance généré |
+| Espace client | Lien sécurisé + code à 6 chiffres par dossier : le client dépose ses pièces depuis son téléphone, voit leur statut et le motif d'un refus ; une tâche « à contrôler » est créée pour le courtier. Aucune donnée financière visible, pas de téléchargement, verrouillage après 5 codes faux, expiration 30 jours, révocable |
 | Banques | Comparatif des offres sur un même montant : mensualité, coût total, TAEG estimé, écart avec la meilleure |
 | Synthèse bancaire | Présentation du dossier générée automatiquement (points forts, points de vigilance) |
 | Facturation | Honoraires et commissions ; facturation bloquée avant le déblocage des fonds (art. L519-6 CMF) |
@@ -32,7 +33,8 @@ Logiciel de gestion des dossiers de crédit immobilier pour courtiers IOBSP.
 - Session dans un cookie `httpOnly`, `SameSite=Strict` (et `Secure` en production), plus un en-tête anti-CSRF obligatoire
 - Cloisonnement strict entre cabinets (testé)
 - Pièces chiffrées au repos (Fernet), type de fichier vérifié par signature et non par l'extension, 15 Mo maximum
-- Journal d'audit : connexions, échecs, consultations, modifications, exports, effacements
+- Journal d'audit : connexions, échecs, consultations, modifications, exports, effacements, accès et dépôts clients
+- Espace client : jeton de lien stocké haché (SHA-256), code haché (Argon2), session client distincte et limitée à `/api/espace` (2 h)
 
 ## Démarrage local
 
@@ -59,5 +61,7 @@ Tests : `cd backend && .venv/bin/pip install -r requirements-dev.txt && .venv/bi
 - Le PTZ n'est **pas calculé** (éligibilité, zone, quotité) : saisie manuelle des conditions.
 - Prêts lissés et paliers non gérés ; assurance calculée uniquement sur le capital initial.
 - TAEG **estimé** : seul celui de l'offre bancaire fait foi.
-- Pas encore de lecture automatique des documents (OCR / Cred'IA), de signature électronique, ni d'espace client.
+- Pas encore de lecture automatique des documents (OCR / Cred'IA) ni de signature électronique.
+- L'espace client n'envoie pas lui-même d'e-mail ni de SMS : le courtier copie les messages préparés.
+- Mise à niveau de la base faite au démarrage de façon minimale : passer à Alembic avant la production.
 - Limitation des tentatives de connexion en mémoire : prévoir Redis si plusieurs processus.

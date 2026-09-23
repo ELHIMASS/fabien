@@ -36,14 +36,32 @@ def password_policy(pw: str) -> str | None:
     return None
 
 
+COOKIE_CLIENT = "nexa_client"
+CLIENT_SESSION_MIN = 120
+
+
 def create_token(user_id: int) -> str:
     exp = datetime.now(timezone.utc) + timedelta(hours=SESSION_HOURS)
-    return jwt.encode({"sub": str(user_id), "exp": exp}, JWT_SECRET, algorithm="HS256")
+    return jwt.encode({"sub": str(user_id), "typ": "staff", "exp": exp}, JWT_SECRET, algorithm="HS256")
 
 
 def read_token(token: str) -> int | None:
     try:
-        return int(jwt.decode(token, JWT_SECRET, algorithms=["HS256"])["sub"])
+        p = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
+        return int(p["sub"]) if p.get("typ") == "staff" else None
+    except (jwt.PyJWTError, KeyError, ValueError):
+        return None
+
+
+def create_client_token(espace_id: int) -> str:
+    exp = datetime.now(timezone.utc) + timedelta(minutes=CLIENT_SESSION_MIN)
+    return jwt.encode({"esp": espace_id, "typ": "client", "exp": exp}, JWT_SECRET, algorithm="HS256")
+
+
+def read_client_token(token: str) -> int | None:
+    try:
+        p = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
+        return int(p["esp"]) if p.get("typ") == "client" else None
     except (jwt.PyJWTError, KeyError, ValueError):
         return None
 
@@ -78,3 +96,4 @@ class RateLimiter:
 
 
 login_limiter = RateLimiter(max_hits=5, window_s=300)
+espace_limiter = RateLimiter(max_hits=10, window_s=600)

@@ -1,6 +1,6 @@
 import { StrictMode, useCallback, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter, Navigate, NavLink, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, NavLink, Route, Routes, useLocation } from "react-router-dom";
 import "./styles.css";
 import { api } from "./api";
 import { Toast, ToastCtx } from "./components/ui";
@@ -12,6 +12,15 @@ import Capacite from "./pages/Capacite";
 import Facturation from "./pages/Facturation";
 import Parametres from "./pages/Parametres";
 import Journal from "./pages/Journal";
+import EspaceClient from "./pages/EspaceClient";
+
+// L'espace client est public (lien + code) : il ne passe pas par la connexion du cabinet.
+function Racine() {
+  const { pathname } = useLocation();
+  return pathname.startsWith("/espace/")
+    ? <Routes><Route path="/espace/:token" element={<EspaceClient />} /></Routes>
+    : <App />;
+}
 
 function App() {
   const [session, setSession] = useState(undefined); // undefined = chargement, null = déconnecté
@@ -69,4 +78,4 @@ function App() {
   );
 }
 
-createRoot(document.getElementById("root")).render(<StrictMode><BrowserRouter><App /></BrowserRouter></StrictMode>);
+createRoot(document.getElementById("root")).render(<StrictMode><BrowserRouter><Racine /></BrowserRouter></StrictMode>);

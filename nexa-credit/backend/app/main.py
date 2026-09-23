@@ -6,10 +6,22 @@ from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
+from sqlalchemy import inspect, text
+
 from .db import Base, engine
-from .routers import auth, cabinet, documents, dossiers, outils
+from .routers import auth, cabinet, documents, dossiers, espace, outils
 
 Base.metadata.create_all(engine)
+
+# Mise à niveau légère des bases existantes (v0.1 → v0.2) : colonnes ajoutées depuis.
+# À remplacer par Alembic avant la production.
+_AJOUTS = {"documents": {"source": "VARCHAR(10) DEFAULT 'cabinet' NOT NULL"}}
+with engine.begin() as _c:
+    for _table, _cols in _AJOUTS.items():
+        _existantes = {c["name"] for c in inspect(_c).get_columns(_table)}
+        for _col, _ddl in _cols.items():
+            if _col not in _existantes:
+                _c.execute(text(f"ALTER TABLE {_table} ADD COLUMN {_col} {_ddl}"))
 
 app = FastAPI(title="NEXA CREDIT", version="0.1.0", docs_url="/api/docs", openapi_url="/api/openapi.json")
 
@@ -30,7 +42,7 @@ async def securite(request: Request, call_next):
     return resp
 
 
-for r in (auth, cabinet, dossiers, documents, outils):
+for r in (auth, cabinet, dossiers, documents, espace, outils):
     app.include_router(r.router)
 
 

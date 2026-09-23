@@ -1,0 +1,692 @@
+<title>Nexa Courtage</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ground:#F3F5F4; --surface:#FFFFFF; --sunk:#E9EDEB; --line:#D5DCD9;
+  --ink:#15201D; --ink-2:#4A5753; --ink-3:#7A8783;
+  --accent:#0D6655; --accent-ink:#FFFFFF; --accent-soft:#DCEFEA;
+  --ok:#1E7A3C; --ok-soft:#DFF2E4; --warn:#9A6200; --warn-soft:#FBEFD6; --bad:#B3261E; --bad-soft:#FBE3E1;
+  --shadow:0 1px 2px rgba(21,32,29,.06),0 4px 14px rgba(21,32,29,.05);
+  --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;
+  --ground:#0F1513; --surface:#161E1B; --sunk:#1D2723; --line:#2B3833;
+  --ink:#E6EEEB; --ink-2:#AEBBB6; --ink-3:#7D8B86;
+  --accent:#4CC3A6; --accent-ink:#06231C; --accent-soft:#16352D;
+  --ok:#6BD08A; --ok-soft:#173222; --warn:#F0B75A; --warn-soft:#352A12; --bad:#F2877F; --bad-soft:#3A1B19;
+  --shadow:0 1px 2px rgba(0,0,0,.4);
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --ground:#0F1513; --surface:#161E1B; --sunk:#1D2723; --line:#2B3833;
+  --ink:#E6EEEB; --ink-2:#AEBBB6; --ink-3:#7D8B86;
+  --accent:#4CC3A6; --accent-ink:#06231C; --accent-soft:#16352D;
+  --ok:#6BD08A; --ok-soft:#173222; --warn:#F0B75A; --warn-soft:#352A12; --bad:#F2877F; --bad-soft:#3A1B19;
+  --shadow:0 1px 2px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--ground);color:var(--ink);font:14px/1.5 var(--body)}
+button,input,select,textarea{font:inherit;color:inherit}
+.app{display:grid;grid-template-columns:220px 1fr;min-height:100%}
+.side{background:var(--surface);border-right:1px solid var(--line);padding:20px 14px;display:flex;flex-direction:column;gap:22px;position:sticky;top:0;height:100vh}
+.brand{font-family:var(--display);font-weight:700;font-size:20px;letter-spacing:-.01em;padding-inline:8px}
+.brand small{display:block;font:500 10px/1.2 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-top:4px}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav button{all:unset;cursor:pointer;padding:8px 10px;border-radius:6px;color:var(--ink-2);display:flex;justify-content:space-between;align-items:center}
+.nav button:hover{background:var(--sunk);color:var(--ink)}
+.nav button[aria-current="page"]{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.nav button:focus-visible,.btn:focus-visible,.tabs button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.nav .count{font:500 11px var(--mono);color:var(--ink-3)}
+.side-foot{margin-top:auto;font-size:11px;color:var(--ink-3);padding-inline:8px;line-height:1.45}
+main{padding-block:24px 60px;padding-inline:28px;min-width:0}
+.head{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;justify-content:space-between;margin-bottom:20px}
+h1{font-family:var(--display);font-weight:700;font-size:28px;letter-spacing:-.02em;margin:0;text-wrap:balance}
+h2{font-family:var(--display);font-weight:500;font-size:17px;margin:0 0 12px}
+h3{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin:0 0 10px}
+.sub{color:var(--ink-2);margin:4px 0 0}
+.btn{border:1px solid var(--line);background:var(--surface);padding:7px 12px;border-radius:6px;cursor:pointer;font-weight:500}
+.btn:hover{border-color:var(--ink-3)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{border-color:transparent;background:transparent;color:var(--ink-2)}
+.btn.small{padding:3px 8px;font-size:12px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:20px}
+.kpi{background:var(--surface);padding:14px 16px}
+.kpi .v{font:500 22px var(--mono);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.kpi .l{font-size:12px;color:var(--ink-3)}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.pipe{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(200px,1fr);gap:10px;overflow-x:auto;padding-bottom:6px}
+.col{background:var(--sunk);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:8px;min-height:120px}
+.col-h{display:flex;justify-content:space-between;font-size:12px;font-weight:600;color:var(--ink-2);padding:2px 4px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:10px;cursor:pointer;text-align:left;width:100%;display:flex;flex-direction:column;gap:4px}
+.card:hover{border-color:var(--accent)}
+.card .n{font-weight:600}
+.card .m{font-size:12px;color:var(--ink-2);display:flex;justify-content:space-between;gap:6px}
+.pill{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:2px 7px;border-radius:99px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.pill.neutral{background:var(--sunk);color:var(--ink-2)}
+.pill.acc{background:var(--accent-soft);color:var(--accent)}
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);font-weight:600;text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr.click{cursor:pointer}
+tr.click:hover td{background:var(--sunk)}
+td.r,th.r{text-align:right}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:18px;overflow-x:auto}
+.tabs button{all:unset;cursor:pointer;padding:9px 14px;color:var(--ink-2);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent);font-weight:600}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px 12px}
+.f{display:flex;flex-direction:column;gap:3px;min-width:0}
+.f label{font-size:12px;color:var(--ink-2)}
+.f input,.f select,.f textarea{border:1px solid var(--line);background:var(--ground);border-radius:5px;padding:6px 8px;width:100%;min-width:0}
+.f input:focus,.f select:focus,.f textarea:focus{outline:2px solid var(--accent);outline-offset:-1px;background:var(--surface)}
+.f input[type=number]{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.lines{display:flex;flex-direction:column}
+.line{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px dashed var(--line)}
+.line:last-child{border-bottom:0}
+.line.total{border-top:1px solid var(--ink);border-bottom:0;font-weight:600;margin-top:4px;padding-top:9px}
+.line .k{color:var(--ink-2)}
+.gauge{height:8px;background:var(--sunk);border-radius:99px;position:relative;overflow:hidden;margin:8px 0 4px}
+.gauge>span{position:absolute;inset:0 auto 0 0;border-radius:99px}
+.gauge>i{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--ink)}
+.ratio{display:flex;align-items:baseline;gap:8px}
+.ratio .big{font:500 30px var(--mono);letter-spacing:-.03em}
+.alert{padding:10px 12px;border-radius:6px;font-size:13px;display:flex;gap:8px}
+.alert.warn{background:var(--warn-soft);color:var(--warn)}
+.alert.bad{background:var(--bad-soft);color:var(--bad)}
+.alert.ok{background:var(--ok-soft);color:var(--ok)}
+.stack{display:flex;flex-direction:column;gap:12px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.muted{color:var(--ink-3)}
+.doc{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{all:unset;cursor:pointer;font-size:12px;padding:3px 9px;color:var(--ink-3)}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button.on-bad{background:var(--bad-soft);color:var(--bad);font-weight:600}
+.seg button.on-warn{background:var(--warn-soft);color:var(--warn);font-weight:600}
+.seg button.on-ok{background:var(--ok-soft);color:var(--ok);font-weight:600}
+.progress{height:6px;background:var(--sunk);border-radius:99px;overflow:hidden}
+.progress>span{display:block;height:100%;background:var(--accent)}
+.best td{background:var(--accent-soft)}
+.stages{display:flex;flex-wrap:wrap;gap:4px}
+.stages button{all:unset;cursor:pointer;font-size:12px;padding:4px 10px;border-radius:99px;border:1px solid var(--line);color:var(--ink-2)}
+.stages button.done{background:var(--sunk)}
+.stages button.cur{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.synth{font-size:13.5px;line-height:1.6;white-space:pre-wrap;background:var(--ground);border:1px solid var(--line);border-radius:6px;padding:14px;max-width:75ch;font-family:var(--body)}
+.chk{display:flex;gap:8px;align-items:flex-start;padding:6px 0}
+.chk input{margin-top:3px;accent-color:var(--accent)}
+.chk.done span{text-decoration:line-through;color:var(--ink-3)}
+.toast{position:fixed;bottom:calc(16px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--ink);color:var(--ground);padding:8px 14px;border-radius:6px;font-size:13px;z-index:9}
+.search{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:7px 10px;min-width:0;width:240px;max-width:100%}
+@media (max-width:820px){
+  .app{grid-template-columns:1fr}
+  .side{position:sticky;top:env(safe-area-inset-top,0px);height:auto;flex-direction:row;align-items:center;padding:10px 16px;gap:12px;z-index:5;border-right:0;border-bottom:1px solid var(--line);overflow-x:auto}
+  .brand small,.side-foot{display:none}
+  .nav{flex-direction:row}
+  .nav .count{display:none}
+  main{padding-inline:16px}
+  h1{font-size:23px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div id="root"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/htm@3.1.1/dist/htm.umd.js"></script>
+<script>
+const {useState,useMemo,useEffect} = React;
+const html = htm.bind(React.createElement);
+
+/* ---------- Référentiels ---------- */
+const STAGES = ["Découverte","Montage","En banque","Accord","Offre émise","Signé notaire","Facturé"];
+const HCSF_MAX = 0.35;
+const DOCS = [
+  ["id","Pièce d'identité (CNI / passeport)"],["famille","Livret de famille / PACS / divorce"],["domicile","Justificatif de domicile"],
+  ["bulletins","3 derniers bulletins de salaire"],["bulletin_dec","Bulletin de décembre N-1"],["contrat","Contrat de travail / attestation employeur"],
+  ["impots","2 derniers avis d'imposition"],["releves","3 derniers relevés de comptes (tous comptes)"],["epargne","Justificatifs d'épargne"],
+  ["credits","Tableaux d'amortissement des crédits en cours"],["bail","Bail / quittances de loyer"],["compromis","Compromis / contrat de réservation"],
+  ["devis","Devis travaux"],["dpe","DPE / diagnostics"]
+];
+const BANQUES = ["Crédit Agricole Centre-Est","LCL","Banque Populaire AURA","Caisse d'Épargne Rhône-Alpes","Société Générale","BNP Paribas","CIC Lyonnaise de Banque","Crédit Mutuel","La Banque Postale","Boursorama"];
+
+/* ---------- Calculs ---------- */
+const mensualite = (P,tauxAnnuel,mois)=>{ if(!P||!mois) return 0; const r=tauxAnnuel/100/12; return r===0?P/mois:P*r/(1-Math.pow(1+r,-mois)); };
+const fraisNotaireEstim = (prix,nature)=> Math.round(prix*(nature==="neuf"||nature==="vefa"?0.025:0.078));
+function calcDossier(d){
+  const p=d.projet;
+  const notaire = p.notaireManuel ? +p.notaire||0 : fraisNotaireEstim(+p.prix||0,p.nature);
+  const besoin = (+p.prix||0)+notaire+(+p.travaux||0)+(+p.garantie||0)+(+p.fraisDossier||0)+(+p.honoraires||0);
+  const emprunt = Math.max(0,besoin-(+p.apport||0));
+  const mois = (+p.duree||0)*12;
+  const mHors = mensualite(emprunt,+p.taux||0,mois);
+  const mAssu = emprunt*(+p.tauxAssu||0)/100/12;
+  const mTot = mHors+mAssu;
+  const revenus = d.emprunteurs.reduce((s,e)=>s+(+e.revenus||0),0) + (+d.charges.autresRevenus||0);
+  const locatifPondere = p.type==="Locatif" ? (+p.loyerAttendu||0)*0.7 : 0;
+  const revenusRetenus = revenus + locatifPondere;
+  const chargesCredits = (+d.charges.credits||0)+(+d.charges.pension||0);
+  const chargesApres = chargesCredits + mTot + (p.type==="Locatif" ? (+d.charges.loyer||0) : 0);
+  const endettement = revenusRetenus? chargesApres/revenusRetenus : 0;
+  const resteAVivre = revenusRetenus - chargesApres;
+  const sautCharge = p.type==="Résidence principale" ? mTot-(+d.charges.loyer||0) : null;
+  const interets = mHors*mois-emprunt;
+  const assuTotal = mAssu*mois;
+  const coutTotal = interets+assuTotal+(+p.garantie||0)+(+p.fraisDossier||0);
+  const apportPct = besoin? (+p.apport||0)/besoin : 0;
+  const epargneResiduelle = (+d.epargne||0)-(+p.apport||0);
+  const nbParts = d.emprunteurs.length + (+d.enfants||0);
+  const dureeMax = (p.nature==="vefa"||(+p.travaux||0)>0.1*(+p.prix||0)) ? 27 : 25;
+  return {notaire,besoin,emprunt,mois,mHors,mAssu,mTot,revenus,revenusRetenus,locatifPondere,chargesApres,endettement,resteAVivre,sautCharge,interets,assuTotal,coutTotal,apportPct,epargneResiduelle,nbParts,dureeMax};
+}
+function alertes(d,c){
+  const a=[]; const p=d.projet;
+  if(c.endettement>HCSF_MAX) a.push(["bad",`Taux d'endettement ${pct(c.endettement)} au-dessus de la norme HCSF (35 %). Passage en dérogation obligatoire.`]);
+  else if(c.endettement>0.33) a.push(["warn",`Endettement ${pct(c.endettement)} : proche du plafond, peu de marge de négociation.`]);
+  if(+p.duree>c.dureeMax) a.push(["bad",`Durée ${p.duree} ans > ${c.dureeMax} ans autorisés par le HCSF pour ce projet.`]);
+  if(c.apportPct<0.10 && c.besoin>0) a.push(["warn",`Apport ${pct(c.apportPct)} du coût total : les frais ne sont pas couverts, dossier à 110 %.`]);
+  if(c.epargneResiduelle<0) a.push(["bad",`L'apport déclaré dépasse l'épargne (${eur(d.epargne)}). Incohérence à vérifier.`]);
+  else if(c.epargneResiduelle < c.mTot*3) a.push(["warn",`Épargne résiduelle faible (${eur(c.epargneResiduelle)}, moins de 3 mensualités).`]);
+  const rav1 = 800, ravPart = 300; const ravMin = rav1 + ravPart*(c.nbParts-1);
+  if(c.resteAVivre<ravMin && c.revenusRetenus>0) a.push(["warn",`Reste à vivre ${eur(c.resteAVivre)} sous le repère indicatif de ${eur(ravMin)} pour ${c.nbParts} personne(s).`]);
+  if(c.sautCharge!==null && c.sautCharge>600) a.push(["warn",`Saut de charge de ${eur(c.sautCharge)}/mois : prévoir justification de capacité d'épargne.`]);
+  d.emprunteurs.forEach(e=>{ if(e.contrat==="CDI" && (+e.anciennete||0)<1) a.push(["warn",`${e.prenom||"Emprunteur"} : CDI de moins d'un an, vérifier la fin de période d'essai.`]); if(e.contrat==="CDD"||e.contrat==="Intérim") a.push(["warn",`${e.prenom||"Emprunteur"} : ${e.contrat}, revenus à justifier sur 3 ans.`]); });
+  const manquants = DOCS.filter(([k])=>(d.docs[k]||"manquant")==="manquant").length;
+  if(manquants>0 && STAGES.indexOf(d.stage)>=2) a.push(["warn",`${manquants} pièce(s) manquante(s) alors que le dossier est en banque.`]);
+  return a;
+}
+
+/* ---------- Format ---------- */
+const eur = v => (isFinite(v)?v:0).toLocaleString("fr-FR",{style:"currency",currency:"EUR",maximumFractionDigits:0});
+const eur2 = v => (isFinite(v)?v:0).toLocaleString("fr-FR",{style:"currency",currency:"EUR",minimumFractionDigits:2,maximumFractionDigits:2});
+const pct = v => (isFinite(v)?v*100:0).toLocaleString("fr-FR",{maximumFractionDigits:1})+" %";
+const today = ()=> new Date().toISOString().slice(0,10);
+const fdate = s => s ? new Date(s+"T12:00").toLocaleDateString("fr-FR",{day:"2-digit",month:"short"}) : "—";
+const uid = ()=> Math.random().toString(36).slice(2,9);
+const nomDossier = d => d.emprunteurs.map(e=>e.nom).filter((v,i,a)=>a.indexOf(v)===i).join(" / ") + (d.emprunteurs[0]?` (${d.emprunteurs.map(e=>e.prenom).join(" & ")})`:"");
+
+/* ---------- Données d'exemple (fictives) ---------- */
+const docsFrom = (ok,warn=[]) => Object.fromEntries(DOCS.map(([k])=>[k, ok.includes(k)?"valide":warn.includes(k)?"recu":"manquant"]));
+const SAMPLE = [
+  {id:uid(),ref:"D-2026-041",stage:"En banque",created:"2026-08-28",situation:"Marié",enfants:2,epargne:62000,
+   emprunteurs:[{nom:"Durand",prenom:"Martin",profession:"Ingénieur méthodes",contrat:"CDI",anciennete:6,revenus:3250},{nom:"Durand",prenom:"Sophie",profession:"Infirmière (fonction publique)",contrat:"Fonctionnaire",anciennete:9,revenus:2480}],
+   charges:{loyer:1150,credits:0,pension:0,autresRevenus:0},
+   projet:{type:"Résidence principale",nature:"ancien",ville:"Lyon 7e",prix:385000,travaux:18000,notaireManuel:false,notaire:0,garantie:3900,fraisDossier:800,honoraires:3500,apport:45000,duree:25,taux:3.30,tauxAssu:0.09,loyerAttendu:0},
+   docs:docsFrom(["id","famille","domicile","bulletins","bulletin_dec","contrat","impots","releves","epargne","bail","compromis"],["devis"]),
+   offres:[{id:uid(),banque:"Crédit Agricole Centre-Est",taux:3.25,duree:25,tauxAssu:0.10,fraisDossier:1000,garantie:"Caution CAMCA",garantieCout:3600,ira:"Exonération si mobilité pro",domiciliation:"Oui, 10 ans",statut:"Accord de principe"},
+           {id:uid(),banque:"LCL",taux:3.35,duree:25,tauxAssu:0.09,fraisDossier:500,garantie:"Crédit Logement",garantieCout:4100,ira:"Standard (3 % / 6 mois)",domiciliation:"Non",statut:"Étude en cours"},
+           {id:uid(),banque:"Caisse d'Épargne Rhône-Alpes",taux:3.40,duree:25,tauxAssu:0.10,fraisDossier:0,garantie:"SACCEF",garantieCout:3700,ira:"Standard",domiciliation:"Oui, 5 ans",statut:"Étude en cours"}],
+   facture:{honoraires:3500,commission:1450,statut:"À venir",numero:"",date:""},
+   actions:[{id:uid(),txt:"Relancer LCL sur délai de retour",due:"2026-09-25",done:false},{id:uid(),txt:"Devis cuisine définitif à récupérer",due:"2026-09-30",done:false}],
+   notes:"Couple stable, épargne régulière 600 €/mois visible sur relevés. Compromis signé le 22/08, condition suspensive au 21/10."},
+  {id:uid(),ref:"D-2026-044",stage:"Montage",created:"2026-09-10",situation:"Célibataire",enfants:0,epargne:31000,
+   emprunteurs:[{nom:"Benali",prenom:"Karim",profession:"Commercial B2B",contrat:"CDI",anciennete:4,revenus:3850}],
+   charges:{loyer:780,credits:290,pension:0,autresRevenus:0},
+   projet:{type:"Locatif",nature:"ancien",ville:"Villeurbanne",prix:182000,travaux:12000,notaireManuel:false,notaire:0,garantie:1900,fraisDossier:500,honoraires:2500,apport:22000,duree:20,taux:3.25,tauxAssu:0.12,loyerAttendu:820},
+   docs:docsFrom(["id","domicile","bulletins"],["impots","releves"]),
+   offres:[],facture:{honoraires:2500,commission:800,statut:"À venir",numero:"",date:""},
+   actions:[{id:uid(),txt:"Obtenir estimation loyer par agence (attestation)",due:"2026-09-24",done:false},{id:uid(),txt:"Demander tableau d'amortissement crédit auto",due:"2026-09-26",done:false}],
+   notes:"T2 42 m² proche métro A. Variable brute non retenue (primes), à lisser sur 3 ans si la banque l'accepte."},
+  {id:uid(),ref:"D-2026-037",stage:"Accord",created:"2026-07-19",situation:"Pacsée",enfants:0,epargne:24000,
+   emprunteurs:[{nom:"Perret",prenom:"Julie",profession:"Chargée de communication",contrat:"CDI",anciennete:3,revenus:2350},{nom:"Morel",prenom:"Thomas",profession:"Technicien réseau",contrat:"CDI",anciennete:0.5,revenus:2200}],
+   charges:{loyer:890,credits:0,pension:0,autresRevenus:0},
+   projet:{type:"Résidence principale",nature:"vefa",ville:"Meyzieu",prix:268000,travaux:0,notaireManuel:false,notaire:0,garantie:2800,fraisDossier:500,honoraires:3000,apport:21000,duree:25,taux:3.15,tauxAssu:0.08,loyerAttendu:0},
+   docs:docsFrom(DOCS.map(x=>x[0]).filter(k=>k!=="devis"&&k!=="dpe")),
+   offres:[{id:uid(),banque:"Banque Populaire AURA",taux:3.15,duree:25,tauxAssu:0.08,fraisDossier:500,garantie:"Caution SOCAMI",garantieCout:2800,ira:"Négociées : 0 € en cas de revente",domiciliation:"Oui, 3 ans",statut:"Accord ferme"}],
+   facture:{honoraires:3000,commission:1100,statut:"À venir",numero:"",date:""},
+   actions:[{id:uid(),txt:"Transmettre accord au promoteur",due:"2026-09-22",done:true},{id:uid(),txt:"Délégation assurance : envoyer fiche standardisée d'information",due:"2026-09-24",done:false}],
+   notes:"Thomas en CDI depuis 6 mois, période d'essai validée (attestation employeur fournie)."},
+  {id:uid(),ref:"D-2026-029",stage:"Facturé",created:"2026-06-02",situation:"SCI",enfants:0,epargne:85000,
+   emprunteurs:[{nom:"SCI Les Tilleuls",prenom:"gérant M. Rey",profession:"Chef d'entreprise",contrat:"TNS",anciennete:12,revenus:6200}],
+   charges:{loyer:0,credits:1450,pension:0,autresRevenus:900},
+   projet:{type:"Locatif",nature:"ancien",ville:"Tassin-la-Demi-Lune",prix:420000,travaux:35000,notaireManuel:false,notaire:0,garantie:4500,fraisDossier:1200,honoraires:5000,apport:80000,duree:20,taux:3.45,tauxAssu:0.15,loyerAttendu:2100},
+   docs:docsFrom(DOCS.map(x=>x[0])),
+   offres:[{id:uid(),banque:"CIC Lyonnaise de Banque",taux:3.45,duree:20,tauxAssu:0.15,fraisDossier:1200,garantie:"Hypothèque 1er rang",garantieCout:4500,ira:"Standard",domiciliation:"Oui",statut:"Offre acceptée"}],
+   facture:{honoraires:5000,commission:2300,statut:"Facturé",numero:"F-2026-018",date:"2026-09-12"},
+   actions:[{id:uid(),txt:"Relance paiement honoraires si non reçu",due:"2026-09-27",done:false}],notes:"Immeuble de 3 lots."},
+  {id:uid(),ref:"D-2026-046",stage:"Découverte",created:"2026-09-19",situation:"Marié",enfants:1,epargne:40000,
+   emprunteurs:[{nom:"Gauthier",prenom:"Élise",profession:"Pharmacienne salariée",contrat:"CDI",anciennete:7,revenus:3600},{nom:"Gauthier",prenom:"Nicolas",profession:"Artisan plombier",contrat:"TNS",anciennete:5,revenus:2900}],
+   charges:{loyer:1050,credits:0,pension:0,autresRevenus:0},
+   projet:{type:"Résidence principale",nature:"ancien",ville:"La Mulatière",prix:450000,travaux:30000,notaireManuel:false,notaire:0,garantie:4600,fraisDossier:1000,honoraires:4000,apport:40000,duree:25,taux:3.35,tauxAssu:0.10,loyerAttendu:0},
+   docs:docsFrom(["id"]),offres:[],facture:{honoraires:4000,commission:1600,statut:"À venir",numero:"",date:""},
+   actions:[{id:uid(),txt:"RDV découverte : récupérer bilans N-1, N-2, N-3 de Nicolas",due:"2026-09-26",done:false}],notes:"Revenu TNS = moyenne 3 ans à confirmer sur bilans."}
+];
+
+/* ---------- Stockage local ---------- */
+const KEY="nexa-courtage-v1";
+function load(){ try{ const s=localStorage.getItem(KEY); if(s) return JSON.parse(s);}catch(e){} return SAMPLE; }
+function save(v){ try{ localStorage.setItem(KEY,JSON.stringify(v)); }catch(e){} }
+
+/* ---------- Petits composants ---------- */
+function Num({label,value,onChange,step,suffix,id}){
+  return html`<div className="f"><label htmlFor=${id}>${label}${suffix?html` <span className="muted">(${suffix})</span>`:null}</label>
+    <input id=${id} type="number" step=${step||"any"} value=${value??""} onChange=${e=>onChange(e.target.value===""?"":+e.target.value)} /></div>`;
+}
+function Txt({label,value,onChange,id}){
+  return html`<div className="f"><label htmlFor=${id}>${label}</label><input id=${id} value=${value??""} onChange=${e=>onChange(e.target.value)} /></div>`;
+}
+function Sel({label,value,onChange,options,id}){
+  return html`<div className="f"><label htmlFor=${id}>${label}</label><select id=${id} value=${value} onChange=${e=>onChange(e.target.value)}>${options.map(o=>Array.isArray(o)?html`<option key=${o[0]} value=${o[0]}>${o[1]}</option>`:html`<option key=${o}>${o}</option>`)}</select></div>`;
+}
+const Line = ({k,v,cls}) => html`<div className=${"line "+(cls||"")}><span className="k">${k}</span><span className="num">${v}</span></div>`;
+function stageTone(s){ const i=STAGES.indexOf(s); return i>=5?"ok":i>=3?"acc":i>=2?"warn":"neutral"; }
+function docsProgress(d){ const n=DOCS.length; const ok=DOCS.filter(([k])=>d.docs[k]==="valide").length; const rc=DOCS.filter(([k])=>d.docs[k]==="recu").length; return {n,ok,rc,pc:(ok+rc*0.5)/n}; }
+
+/* ---------- Tableau de bord ---------- */
+function Dashboard({dossiers,open,go}){
+  const actifs = dossiers.filter(d=>d.stage!=="Facturé");
+  const volume = actifs.reduce((s,d)=>s+calcDossier(d).emprunt,0);
+  const aFacturer = dossiers.filter(d=>d.stage==="Signé notaire"||(d.stage==="Offre émise")).reduce((s,d)=>s+(+d.facture.honoraires||0)+(+d.facture.commission||0),0);
+  const encaisse = dossiers.filter(d=>d.facture.statut==="Payé").reduce((s,d)=>s+(+d.facture.honoraires||0)+(+d.facture.commission||0),0);
+  const enAttente = dossiers.filter(d=>d.facture.statut==="Facturé").reduce((s,d)=>s+(+d.facture.honoraires||0)+(+d.facture.commission||0),0);
+  const actions = dossiers.flatMap(d=>d.actions.filter(a=>!a.done).map(a=>({...a,d}))).sort((a,b)=>(a.due||"9").localeCompare(b.due||"9"));
+  const t = today();
+  return html`<div>
+    <div className="head"><div><h1>Tableau de bord</h1><p className="sub">${actifs.length} dossiers actifs · données d'exemple fictives tant que vous n'avez rien saisi</p></div>
+      <button className="btn primary" onClick=${()=>go("new")}>Nouveau dossier</button></div>
+    <div className="kpis">
+      <div className="kpi"><div className="v">${eur(volume)}</div><div className="l">Volume en cours de financement</div></div>
+      <div className="kpi"><div className="v">${eur(aFacturer)}</div><div className="l">À facturer (offre émise / signé)</div></div>
+      <div className="kpi"><div className="v">${eur(enAttente)}</div><div className="l">Facturé, en attente de paiement</div></div>
+      <div className="kpi"><div className="v">${eur(encaisse)}</div><div className="l">Encaissé</div></div>
+    </div>
+    <div className="grid" style=${{gridTemplateColumns:"minmax(0,1fr)"}}>
+      <section><h3>Pipeline</h3>
+        <div className="pipe">${STAGES.map(s=>{ const ds=dossiers.filter(d=>d.stage===s); return html`<div className="col" key=${s}>
+          <div className="col-h"><span>${s}</span><span className="num">${ds.length}</span></div>
+          ${ds.map(d=>{ const c=calcDossier(d); const al=alertes(d,c); const bad=al.some(a=>a[0]==="bad"); return html`<button className="card" key=${d.id} onClick=${()=>open(d.id)}>
+            <span className="n">${nomDossier(d)}</span>
+            <span className="m"><span>${d.projet.type==="Résidence principale"?"RP":d.projet.type} · ${d.projet.ville}</span><span className="num">${eur(c.emprunt)}</span></span>
+            <span className="m"><span className=${"pill "+(c.endettement>HCSF_MAX?"bad":c.endettement>0.33?"warn":"ok")}>${pct(c.endettement)}</span>${al.length?html`<span className=${"pill "+(bad?"bad":"warn")}>${al.length} alerte${al.length>1?"s":""}</span>`:null}</span>
+          </button>`;})}
+        </div>`;})}</div>
+      </section>
+      <section className="panel"><h2>Prochaines actions</h2>
+        ${actions.length===0?html`<p className="muted">Aucune action en attente.</p>`:html`<div className="tablewrap"><table><thead><tr><th>Échéance</th><th>Action</th><th>Dossier</th></tr></thead><tbody>
+          ${actions.slice(0,10).map(a=>html`<tr className="click" key=${a.id} onClick=${()=>open(a.d.id)}>
+            <td className="num" style=${{whiteSpace:"nowrap"}}><span className=${"pill "+(a.due&&a.due<t?"bad":a.due===t?"warn":"neutral")}>${fdate(a.due)}</span></td>
+            <td>${a.txt}</td><td className="muted">${nomDossier(a.d)}</td></tr>`)}
+        </tbody></table></div>`}
+      </section>
+    </div>
+  </div>`;
+}
+
+/* ---------- Liste dossiers ---------- */
+function Liste({dossiers,open,go}){
+  const [q,setQ]=useState(""); const [st,setSt]=useState("Tous");
+  const rows = dossiers.filter(d=>(st==="Tous"||d.stage===st) && (nomDossier(d)+d.ref+d.projet.ville).toLowerCase().includes(q.toLowerCase()));
+  return html`<div>
+    <div className="head"><div><h1>Dossiers</h1><p className="sub">${dossiers.length} dossiers</p></div>
+      <div className="row"><input id="search" className="search" placeholder="Rechercher un client, une ville, une réf." value=${q} onChange=${e=>setQ(e.target.value)} />
+      <select id="filtre-etape" className="search" style=${{width:"auto"}} value=${st} onChange=${e=>setSt(e.target.value)}><option>Tous</option>${STAGES.map(s=>html`<option key=${s}>${s}</option>`)}</select>
+      <button className="btn primary" onClick=${()=>go("new")}>Nouveau dossier</button></div></div>
+    <div className="panel" style=${{padding:0}}><div className="tablewrap"><table>
+      <thead><tr><th>Réf.</th><th>Client</th><th>Projet</th><th className="r">Emprunt</th><th className="r">Mensualité</th><th className="r">Endett.</th><th>Pièces</th><th>Étape</th></tr></thead>
+      <tbody>${rows.map(d=>{ const c=calcDossier(d); const dp=docsProgress(d); return html`<tr className="click" key=${d.id} onClick=${()=>open(d.id)}>
+        <td className="num muted">${d.ref}</td><td><strong>${nomDossier(d)}</strong></td>
+        <td>${d.projet.type} · ${d.projet.ville}</td>
+        <td className="r num">${eur(c.emprunt)}</td><td className="r num">${eur(c.mTot)}</td>
+        <td className="r"><span className=${"pill "+(c.endettement>HCSF_MAX?"bad":c.endettement>0.33?"warn":"ok")}>${pct(c.endettement)}</span></td>
+        <td style=${{minWidth:"90px"}}><div className="progress"><span style=${{width:dp.pc*100+"%"}}></span></div><span className="muted num" style=${{fontSize:"11px"}}>${dp.ok}/${dp.n} validées</span></td>
+        <td><span className=${"pill "+stageTone(d.stage)}>${d.stage}</span></td></tr>`;})}</tbody></table></div></div>
+  </div>`;
+}
+
+/* ---------- Fiche dossier ---------- */
+function Fiche({d,update,remove,back,toast}){
+  const [tab,setTab]=useState("synthese");
+  const [confirmDel,setConfirmDel]=useState(false);
+  const c = useMemo(()=>calcDossier(d),[d]);
+  const al = alertes(d,c);
+  const set = (path,val)=>{ const n=JSON.parse(JSON.stringify(d)); let o=n; const ks=path.split("."); ks.slice(0,-1).forEach(k=>o=o[k]); o[ks[ks.length-1]]=val; update(n); };
+  const tabs=[["synthese","Synthèse"],["clients","Emprunteurs"],["plan","Plan de financement"],["pieces","Pièces"],["banques","Banques"],["facture","Facturation"]];
+  return html`<div>
+    <div className="head"><div><button className="btn ghost small" onClick=${back}>← Dossiers</button>
+      <h1 style=${{marginTop:"6px"}}>${nomDossier(d)}</h1>
+      <p className="sub"><span className="num">${d.ref}</span> · ${d.projet.type} ${d.projet.nature} · ${d.projet.ville} · ouvert le ${fdate(d.created)}</p></div>
+      <div className="row">${confirmDel?html`<span className="muted">Supprimer définitivement ?</span><button className="btn small" onClick=${()=>setConfirmDel(false)}>Annuler</button><button className="btn small" style=${{color:"var(--bad)"}} onClick=${remove}>Supprimer</button>`:html`<button className="btn ghost small" onClick=${()=>setConfirmDel(true)}>Supprimer</button>`}</div></div>
+    <div className="stages" style=${{marginBottom:"16px"}}>${STAGES.map((s,i)=>{ const cur=STAGES.indexOf(d.stage); return html`<button key=${s} className=${i===cur?"cur":i<cur?"done":""} onClick=${()=>set("stage",s)}>${s}</button>`;})}</div>
+    <div className="tabs" role="tablist">${tabs.map(([k,l])=>html`<button key=${k} role="tab" aria-selected=${tab===k} onClick=${()=>setTab(k)}>${l}${k==="pieces"?` ${docsProgress(d).ok}/${DOCS.length}`:""}${k==="banques"&&d.offres.length?` (${d.offres.length})`:""}</button>`)}</div>
+    ${tab==="synthese"&&html`<${Synthese} d=${d} c=${c} al=${al} set=${set} update=${update} toast=${toast} />`}
+    ${tab==="clients"&&html`<${Emprunteurs} d=${d} set=${set} update=${update} />`}
+    ${tab==="plan"&&html`<${Plan} d=${d} c=${c} set=${set} />`}
+    ${tab==="pieces"&&html`<${Pieces} d=${d} set=${set} toast=${toast} />`}
+    ${tab==="banques"&&html`<${Banques} d=${d} c=${c} update=${update} toast=${toast} />`}
+    ${tab==="facture"&&html`<${Facture} d=${d} set=${set} />`}
+  </div>`;
+}
+
+function Ratios({c}){
+  const e=c.endettement; const w=Math.min(e/0.5,1)*100; const col=e>HCSF_MAX?"var(--bad)":e>0.33?"var(--warn)":"var(--ok)";
+  return html`<div className="panel"><h3>Analyse bancaire</h3>
+    <div className="ratio"><span className="big" style=${{color:col}}>${pct(e)}</span><span className="muted">taux d'endettement</span></div>
+    <div className="gauge"><span style=${{width:w+"%",background:col}}></span><i style=${{left:(HCSF_MAX/0.5*100)+"%"}} title="35 %"></i></div>
+    <div className="muted" style=${{fontSize:"11px",display:"flex",justifyContent:"space-between"}}><span>0 %</span><span>35 % HCSF</span><span>50 %</span></div>
+    <div className="lines" style=${{marginTop:"10px"}}>
+      <${Line} k="Revenus retenus / mois" v=${eur(c.revenusRetenus)} />
+      ${c.locatifPondere?html`<${Line} k="dont loyers pondérés 70 %" v=${eur(c.locatifPondere)} />`:null}
+      <${Line} k="Charges après projet" v=${eur(c.chargesApres)} />
+      <${Line} k="Reste à vivre" v=${eur(c.resteAVivre)} />
+      ${c.sautCharge!==null?html`<${Line} k="Saut de charge" v=${(c.sautCharge>0?"+":"")+eur(c.sautCharge)} />`:null}
+      <${Line} k="Apport / coût total" v=${pct(c.apportPct)} />
+      <${Line} k="Épargne résiduelle" v=${eur(c.epargneResiduelle)} />
+    </div></div>`;
+}
+
+function genSynthese(d,c){
+  const e=d.emprunteurs; const p=d.projet;
+  const qui = e.map(x=>`${x.prenom} ${x.nom}, ${x.profession} en ${x.contrat}${x.anciennete?` depuis ${x.anciennete} an${x.anciennete>1?"s":""}`:""} (${eur(x.revenus)} nets/mois)`).join(" ; ");
+  const forts=[]; const faibles=[];
+  if(c.endettement<=0.33) forts.push(`endettement maîtrisé à ${pct(c.endettement)}`);
+  if(c.apportPct>=0.10) forts.push(`apport de ${eur(p.apport)} couvrant les frais`);
+  if(c.epargneResiduelle>=c.mTot*6) forts.push(`épargne résiduelle de ${eur(c.epargneResiduelle)} après opération`);
+  if(e.every(x=>["CDI","Fonctionnaire"].includes(x.contrat)&&(+x.anciennete||0)>=2)) forts.push("stabilité professionnelle des emprunteurs");
+  if(c.sautCharge!==null && c.sautCharge<=300) forts.push(`saut de charge limité (${eur(c.sautCharge)}/mois)`);
+  alertes(d,c).forEach(a=>faibles.push(a[1]));
+  return `OBJET : Demande de financement – ${nomDossier(d)} – ${p.type} ${p.ville}
+
+Emprunteurs
+${d.situation}${d.enfants?`, ${d.enfants} enfant${d.enfants>1?"s":""}`:""}. ${qui}.
+Charges actuelles : loyer ${eur(d.charges.loyer)}, crédits ${eur(d.charges.credits)}. Épargne disponible : ${eur(d.epargne)}.
+
+Projet
+Acquisition ${p.nature==="vefa"?"en VEFA":p.nature==="neuf"?"dans le neuf":"dans l'ancien"} à ${p.ville} pour ${eur(p.prix)}${+p.travaux?`, travaux ${eur(p.travaux)}`:""}. Frais de notaire ${eur(c.notaire)}.
+Coût total d'opération : ${eur(c.besoin)}.
+
+Financement sollicité
+Apport ${eur(p.apport)} – Prêt ${eur(c.emprunt)} sur ${p.duree} ans.
+Mensualité ${eur(c.mTot)} assurance comprise (base ${String(p.taux).replace(".",",")} % hors assurance).
+Endettement après projet : ${pct(c.endettement)} – reste à vivre : ${eur(c.resteAVivre)}.
+
+Points forts
+${forts.length?forts.map(x=>"– "+x).join("\n"):"– à compléter"}
+
+Points de vigilance et réponses apportées
+${faibles.length?faibles.map(x=>"– "+x).join("\n"):"– aucun point bloquant identifié"}
+
+Notes courtier
+${d.notes||"—"}`;
+}
+
+function Synthese({d,c,al,set,update,toast}){
+  const [txt,setTxt]=useState("");
+  const syn = genSynthese(d,c);
+  const copy = ()=>{ try{ navigator.clipboard.writeText(syn).then(()=>toast("Synthèse copiée"),()=>toast("Copie refusée : sélectionnez le texte")); }catch(e){ toast("Copie refusée : sélectionnez le texte"); } };
+  const addAction = ()=>{ if(!txt.trim()) return; update({...d,actions:[...d.actions,{id:uid(),txt:txt.trim(),due:"",done:false}]}); setTxt(""); };
+  return html`<div className="grid g2">
+    <div className="stack">
+      <${Ratios} c=${c} />
+      <div className="panel"><h3>Contrôles automatiques</h3>
+        <div className="stack" style=${{gap:"6px"}}>${al.length?al.map((a,i)=>html`<div key=${i} className=${"alert "+a[0]}>${a[1]}</div>`):html`<div className="alert ok">Aucune anomalie détectée sur les règles contrôlées.</div>`}</div>
+        <p className="muted" style=${{fontSize:"12px",marginBottom:0}}>Règles : HCSF 35 % / 25 ans (27 si VEFA ou travaux &gt; 10 %), cohérence apport/épargne, reste à vivre indicatif (800 € + 300 €/personne), contrats, pièces.</p></div>
+      <div className="panel"><h3>Actions</h3>
+        ${d.actions.map((a,i)=>html`<div key=${a.id} className=${"chk "+(a.done?"done":"")}>
+          <input type="checkbox" id=${"act-"+a.id} checked=${a.done} onChange=${e=>set(`actions.${i}.done`,e.target.checked)} />
+          <span style=${{flex:1}}><label htmlFor=${"act-"+a.id}>${a.txt}</label></span>
+          <input type="date" id=${"due-"+a.id} className="search" style=${{width:"140px",padding:"2px 6px"}} value=${a.due} onChange=${e=>set(`actions.${i}.due`,e.target.value)} /></div>`)}
+        <div className="row" style=${{marginTop:"8px"}}><input id="new-action" className="search" style=${{flex:1}} placeholder="Nouvelle action…" value=${txt} onChange=${e=>setTxt(e.target.value)} onKeyDown=${e=>e.key==="Enter"&&addAction()} /><button className="btn small" onClick=${addAction}>Ajouter</button></div></div>
+      <div className="panel"><h3>Notes</h3><div className="f"><textarea id="notes" rows="4" value=${d.notes} onChange=${e=>set("notes",e.target.value)}></textarea></div></div>
+    </div>
+    <div className="panel"><div className="row" style=${{justifyContent:"space-between",marginBottom:"10px"}}><h3 style=${{margin:0}}>Synthèse bancaire</h3><button className="btn small" onClick=${copy}>Copier</button></div>
+      <div className="synth">${syn}</div>
+      <p className="muted" style=${{fontSize:"12px"}}>Générée à partir des données du dossier. Relisez et personnalisez avant envoi.</p></div>
+  </div>`;
+}
+
+function Emprunteurs({d,set,update}){
+  const add=()=>update({...d,emprunteurs:[...d.emprunteurs,{nom:d.emprunteurs[0]?.nom||"",prenom:"",profession:"",contrat:"CDI",anciennete:"",revenus:""}]});
+  const del=i=>update({...d,emprunteurs:d.emprunteurs.filter((_,j)=>j!==i)});
+  return html`<div className="stack">
+    <div className="panel"><h3>Foyer</h3><div className="fields">
+      <${Sel} id="situation" label="Situation" value=${d.situation} onChange=${v=>set("situation",v)} options=${["Célibataire","Marié","Pacsé","Pacsée","Concubinage","Divorcé","SCI"]} />
+      <${Num} id="enfants" label="Enfants à charge" value=${d.enfants} onChange=${v=>set("enfants",v)} />
+      <${Num} id="epargne" label="Épargne totale" suffix="€" value=${d.epargne} onChange=${v=>set("epargne",v)} />
+      <${Num} id="loyer" label="Loyer actuel" suffix="€/mois" value=${d.charges.loyer} onChange=${v=>set("charges.loyer",v)} />
+      <${Num} id="credits" label="Crédits en cours" suffix="€/mois" value=${d.charges.credits} onChange=${v=>set("charges.credits",v)} />
+      <${Num} id="pension" label="Pension versée" suffix="€/mois" value=${d.charges.pension} onChange=${v=>set("charges.pension",v)} />
+      <${Num} id="autres" label="Autres revenus" suffix="€/mois" value=${d.charges.autresRevenus} onChange=${v=>set("charges.autresRevenus",v)} />
+    </div></div>
+    ${d.emprunteurs.map((e,i)=>html`<div className="panel" key=${i}><div className="row" style=${{justifyContent:"space-between"}}><h3>Emprunteur ${i+1}</h3>${d.emprunteurs.length>1?html`<button className="btn ghost small" onClick=${()=>del(i)}>Retirer</button>`:null}</div>
+      <div className="fields">
+        <${Txt} id=${"nom"+i} label="Nom" value=${e.nom} onChange=${v=>set(`emprunteurs.${i}.nom`,v)} />
+        <${Txt} id=${"prenom"+i} label="Prénom" value=${e.prenom} onChange=${v=>set(`emprunteurs.${i}.prenom`,v)} />
+        <${Txt} id=${"prof"+i} label="Profession" value=${e.profession} onChange=${v=>set(`emprunteurs.${i}.profession`,v)} />
+        <${Sel} id=${"contrat"+i} label="Contrat" value=${e.contrat} onChange=${v=>set(`emprunteurs.${i}.contrat`,v)} options=${["CDI","Fonctionnaire","CDD","Intérim","TNS","Profession libérale","Retraité"]} />
+        <${Num} id=${"anc"+i} label="Ancienneté" suffix="ans" value=${e.anciennete} onChange=${v=>set(`emprunteurs.${i}.anciennete`,v)} />
+        <${Num} id=${"rev"+i} label="Revenus nets avant IR" suffix="€/mois" value=${e.revenus} onChange=${v=>set(`emprunteurs.${i}.revenus`,v)} />
+      </div></div>`)}
+    <div><button className="btn" onClick=${add}>Ajouter un co-emprunteur</button></div>
+  </div>`;
+}
+
+function Plan({d,c,set}){
+  const p=d.projet; const [showAmort,setShowAmort]=useState(false);
+  const amort = useMemo(()=>{ const r=(+p.taux||0)/100/12; let crd=c.emprunt; const rows=[]; for(let y=1;y<=(+p.duree||0);y++){ let int=0,cap=0; for(let m=0;m<12;m++){ const i=crd*r; const k=c.mHors-i; int+=i; cap+=k; crd-=k; } rows.push({y,int,cap,assu:c.mAssu*12,crd:Math.max(0,crd)}); } return rows; },[c.emprunt,p.taux,p.duree,c.mHors,c.mAssu]);
+  return html`<div className="grid g2">
+    <div className="stack">
+      <div className="panel"><h3>Projet</h3><div className="fields">
+        <${Sel} id="type" label="Type" value=${p.type} onChange=${v=>set("projet.type",v)} options=${["Résidence principale","Résidence secondaire","Locatif","Professionnel"]} />
+        <${Sel} id="nature" label="Nature" value=${p.nature} onChange=${v=>set("projet.nature",v)} options=${[["ancien","Ancien"],["neuf","Neuf"],["vefa","VEFA"],["construction","Construction"]]} />
+        <${Txt} id="ville" label="Ville" value=${p.ville} onChange=${v=>set("projet.ville",v)} />
+        <${Num} id="prix" label="Prix du bien" suffix="€" value=${p.prix} onChange=${v=>set("projet.prix",v)} />
+        <${Num} id="travaux" label="Travaux" suffix="€" value=${p.travaux} onChange=${v=>set("projet.travaux",v)} />
+        ${p.type==="Locatif"?html`<${Num} id="loyerAttendu" label="Loyer attendu" suffix="€/mois" value=${p.loyerAttendu} onChange=${v=>set("projet.loyerAttendu",v)} />`:null}
+      </div></div>
+      <div className="panel"><h3>Frais</h3><div className="fields">
+        <div className="f"><label htmlFor="notaireManuel">Frais de notaire</label>
+          <select id="notaireManuel" value=${p.notaireManuel?"m":"a"} onChange=${e=>set("projet.notaireManuel",e.target.value==="m")}><option value="a">Estimation auto</option><option value="m">Montant réel</option></select></div>
+        ${p.notaireManuel?html`<${Num} id="notaire" label="Montant notaire" suffix="€" value=${p.notaire} onChange=${v=>set("projet.notaire",v)} />`:html`<div className="f"><label>Estimation</label><input disabled value=${eur(c.notaire)} /></div>`}
+        <${Num} id="garantie" label="Garantie" suffix="€" value=${p.garantie} onChange=${v=>set("projet.garantie",v)} />
+        <${Num} id="fraisDossier" label="Frais de dossier" suffix="€" value=${p.fraisDossier} onChange=${v=>set("projet.fraisDossier",v)} />
+        <${Num} id="honoraires" label="Honoraires courtage" suffix="€" value=${p.honoraires} onChange=${v=>set("projet.honoraires",v)} />
+      </div><p className="muted" style=${{fontSize:"12px",marginBottom:0}}>Estimation notaire : ~7,8 % dans l'ancien, ~2,5 % dans le neuf/VEFA. À remplacer par le décompte du notaire.</p></div>
+      <div className="panel"><h3>Prêt</h3><div className="fields">
+        <${Num} id="apport" label="Apport" suffix="€" value=${p.apport} onChange=${v=>set("projet.apport",v)} />
+        <${Num} id="duree" label="Durée" suffix="ans" value=${p.duree} onChange=${v=>set("projet.duree",v)} />
+        <${Num} id="taux" label="Taux nominal" suffix="%" step="0.01" value=${p.taux} onChange=${v=>set("projet.taux",v)} />
+        <${Num} id="tauxAssu" label="Taux assurance" suffix="% / capital initial" step="0.01" value=${p.tauxAssu} onChange=${v=>set("projet.tauxAssu",v)} />
+      </div></div>
+    </div>
+    <div className="stack">
+      <div className="panel"><h3>Plan de financement</h3><div className="lines">
+        <${Line} k="Prix du bien" v=${eur(p.prix)} /><${Line} k="Frais de notaire" v=${eur(c.notaire)} />
+        <${Line} k="Travaux" v=${eur(p.travaux)} /><${Line} k="Garantie" v=${eur(p.garantie)} />
+        <${Line} k="Frais de dossier" v=${eur(p.fraisDossier)} /><${Line} k="Honoraires courtage" v=${eur(p.honoraires)} />
+        <${Line} cls="total" k="Coût total de l'opération" v=${eur(c.besoin)} />
+        <${Line} k="Apport personnel" v=${"− "+eur(p.apport)} />
+        <${Line} cls="total" k="Montant à financer" v=${eur(c.emprunt)} />
+      </div></div>
+      <div className="panel"><h3>Échéancier</h3><div className="lines">
+        <${Line} k="Mensualité hors assurance" v=${eur2(c.mHors)} /><${Line} k="Assurance / mois" v=${eur2(c.mAssu)} />
+        <${Line} cls="total" k="Mensualité totale" v=${eur2(c.mTot)} />
+        <${Line} k="Coût des intérêts" v=${eur(c.interets)} /><${Line} k="Coût de l'assurance" v=${eur(c.assuTotal)} />
+        <${Line} cls="total" k="Coût total du crédit (hors TAEG)" v=${eur(c.coutTotal)} />
+      </div>
+      <button className="btn small" style=${{marginTop:"10px"}} onClick=${()=>setShowAmort(!showAmort)}>${showAmort?"Masquer":"Afficher"} l'amortissement annuel</button>
+      ${showAmort&&html`<div className="tablewrap" style=${{marginTop:"10px"}}><table><thead><tr><th>Année</th><th className="r">Intérêts</th><th className="r">Capital</th><th className="r">Assurance</th><th className="r">Capital restant</th></tr></thead>
+        <tbody>${amort.map(r=>html`<tr key=${r.y}><td className="num">${r.y}</td><td className="r num">${eur(r.int)}</td><td className="r num">${eur(r.cap)}</td><td className="r num">${eur(r.assu)}</td><td className="r num">${eur(r.crd)}</td></tr>`)}</tbody></table></div>`}
+      </div>
+      <${Ratios} c=${c} />
+    </div>
+  </div>`;
+}
+
+function Pieces({d,set,toast}){
+  const dp=docsProgress(d);
+  const manquants=DOCS.filter(([k])=>(d.docs[k]||"manquant")==="manquant");
+  const relance = `Bonjour,\n\nPour avancer sur votre dossier de financement, il me manque les pièces suivantes :\n${manquants.map(([,l])=>"- "+l).join("\n")}\n\nVous pouvez me les transmettre par retour de mail.\n\nBien cordialement,\nFabien Bernillon`;
+  const copy=()=>{ try{ navigator.clipboard.writeText(relance).then(()=>toast("Mail de relance copié"),()=>toast("Copie refusée")); }catch(e){ toast("Copie refusée"); } };
+  return html`<div className="grid g2">
+    <div className="panel"><div className="row" style=${{justifyContent:"space-between"}}><h3 style=${{margin:0}}>Pièces justificatives</h3><span className="num muted">${dp.ok} validées · ${dp.rc} reçues · ${manquants.length} manquantes</span></div>
+      <div className="progress" style=${{margin:"10px 0"}}><span style=${{width:dp.pc*100+"%"}}></span></div>
+      ${DOCS.map(([k,l])=>{ const s=d.docs[k]||"manquant"; return html`<div className="doc" key=${k}><span>${l}</span>
+        <div className="seg" role="group" aria-label=${l}>
+          <button className=${s==="manquant"?"on-bad":""} onClick=${()=>set("docs."+k,"manquant")}>Manquant</button>
+          <button className=${s==="recu"?"on-warn":""} onClick=${()=>set("docs."+k,"recu")}>Reçu</button>
+          <button className=${s==="valide"?"on-ok":""} onClick=${()=>set("docs."+k,"valide")}>Validé</button></div></div>`;})}</div>
+    <div className="panel"><div className="row" style=${{justifyContent:"space-between",marginBottom:"10px"}}><h3 style=${{margin:0}}>Relance client</h3><button className="btn small" onClick=${copy} disabled=${!manquants.length}>Copier</button></div>
+      ${manquants.length?html`<div className="synth">${relance}</div>`:html`<div className="alert ok">Toutes les pièces sont reçues.</div>`}
+      <p className="muted" style=${{fontSize:"12px"}}>« Reçu » = document en main, pas encore contrôlé. « Validé » = cohérence vérifiée (dates, montants, identité).</p></div>
+  </div>`;
+}
+
+function Banques({d,c,update,toast}){
+  const [confirmId,setConfirmId]=useState(null);
+  const offres = d.offres.map(o=>{ const m=mensualite(c.emprunt,+o.taux||0,(+o.duree||0)*12); const a=c.emprunt*(+o.tauxAssu||0)/100/12; const n=(+o.duree||0)*12; return {...o,mTot:m+a,cout:(m*n-c.emprunt)+a*n+(+o.fraisDossier||0)+(+o.garantieCout||0)}; });
+  const best = offres.length? offres.reduce((b,o)=>o.cout<b.cout?o:b):null;
+  const setO=(i,k,v)=>{ const n=d.offres.map((o,j)=>j===i?{...o,[k]:v}:o); update({...d,offres:n}); };
+  const add=()=>update({...d,offres:[...d.offres,{id:uid(),banque:BANQUES[0],taux:d.projet.taux,duree:d.projet.duree,tauxAssu:d.projet.tauxAssu,fraisDossier:0,garantie:"Crédit Logement",garantieCout:d.projet.garantie,ira:"",domiciliation:"",statut:"Envoyé"}]});
+  const del=i=>{ update({...d,offres:d.offres.filter((_,j)=>j!==i)}); setConfirmId(null); };
+  return html`<div className="stack">
+    <div className="panel" style=${{padding:0}}><div className="tablewrap"><table>
+      <thead><tr><th>Banque</th><th>Statut</th><th className="r">Taux</th><th className="r">Durée</th><th className="r">Assu.</th><th className="r">Mensualité</th><th className="r">Frais + garantie</th><th className="r">Coût total</th><th className="r">Écart</th></tr></thead>
+      <tbody>${offres.length?offres.map(o=>html`<tr key=${o.id} className=${best&&o.id===best.id?"best":""}>
+        <td><strong>${o.banque}</strong>${best&&o.id===best.id?html` <span className="pill acc">Meilleur coût</span>`:null}</td>
+        <td><span className=${"pill "+(/accept|ferme/i.test(o.statut)?"ok":/principe/i.test(o.statut)?"acc":/refus/i.test(o.statut)?"bad":"neutral")}>${o.statut}</span></td>
+        <td className="r num">${(+o.taux).toFixed(2).replace(".",",")} %</td><td className="r num">${o.duree} ans</td><td className="r num">${(+o.tauxAssu).toFixed(2).replace(".",",")} %</td>
+        <td className="r num">${eur2(o.mTot)}</td><td className="r num">${eur((+o.fraisDossier||0)+(+o.garantieCout||0))}</td><td className="r num">${eur(o.cout)}</td>
+        <td className="r num">${best&&o.id!==best.id?"+"+eur(o.cout-best.cout):"—"}</td></tr>`):html`<tr><td colSpan="9" className="muted">Aucune proposition enregistrée. Ajoutez les banques consultées pour les comparer.</td></tr>`}</tbody></table></div></div>
+    <p className="muted" style=${{fontSize:"12px",margin:0}}>Comparaison sur le montant financé du plan (${eur(c.emprunt)}). Coût total = intérêts + assurance + frais de dossier + garantie. Ce n'est pas un TAEG réglementaire.</p>
+    ${d.offres.map((o,i)=>html`<div className="panel" key=${o.id}><div className="row" style=${{justifyContent:"space-between"}}><h3>${o.banque}</h3>
+      ${confirmId===o.id?html`<div className="row"><button className="btn small" onClick=${()=>setConfirmId(null)}>Annuler</button><button className="btn small" style=${{color:"var(--bad)"}} onClick=${()=>del(i)}>Confirmer</button></div>`:html`<button className="btn ghost small" onClick=${()=>setConfirmId(o.id)}>Retirer</button>`}</div>
+      <div className="fields">
+        <${Sel} id=${"b"+o.id} label="Banque" value=${o.banque} onChange=${v=>setO(i,"banque",v)} options=${BANQUES.includes(o.banque)?BANQUES:[o.banque,...BANQUES]} />
+        <${Sel} id=${"s"+o.id} label="Statut" value=${o.statut} onChange=${v=>setO(i,"statut",v)} options=${["Envoyé","Étude en cours","Accord de principe","Accord ferme","Offre acceptée","Refus"]} />
+        <${Num} id=${"t"+o.id} label="Taux" suffix="%" step="0.01" value=${o.taux} onChange=${v=>setO(i,"taux",v)} />
+        <${Num} id=${"d"+o.id} label="Durée" suffix="ans" value=${o.duree} onChange=${v=>setO(i,"duree",v)} />
+        <${Num} id=${"a"+o.id} label="Assurance" suffix="%" step="0.01" value=${o.tauxAssu} onChange=${v=>setO(i,"tauxAssu",v)} />
+        <${Num} id=${"fd"+o.id} label="Frais de dossier" suffix="€" value=${o.fraisDossier} onChange=${v=>setO(i,"fraisDossier",v)} />
+        <${Txt} id=${"g"+o.id} label="Garantie" value=${o.garantie} onChange=${v=>setO(i,"garantie",v)} />
+        <${Num} id=${"gc"+o.id} label="Coût garantie" suffix="€" value=${o.garantieCout} onChange=${v=>setO(i,"garantieCout",v)} />
+        <${Txt} id=${"ira"+o.id} label="IRA" value=${o.ira} onChange=${v=>setO(i,"ira",v)} />
+        <${Txt} id=${"dom"+o.id} label="Domiciliation" value=${o.domiciliation} onChange=${v=>setO(i,"domiciliation",v)} />
+      </div></div>`)}
+    <div><button className="btn" onClick=${add}>Ajouter une proposition bancaire</button></div>
+  </div>`;
+}
+
+function Facture({d,set}){
+  const f=d.facture; const tot=(+f.honoraires||0)+(+f.commission||0);
+  return html`<div className="grid g2">
+    <div className="panel"><h3>Rémunération</h3><div className="fields">
+      <${Num} id="fh" label="Honoraires client" suffix="€ TTC" value=${f.honoraires} onChange=${v=>set("facture.honoraires",v)} />
+      <${Num} id="fc" label="Commission bancaire" suffix="€" value=${f.commission} onChange=${v=>set("facture.commission",v)} />
+      <${Sel} id="fs" label="Statut" value=${f.statut} onChange=${v=>set("facture.statut",v)} options=${["À venir","À facturer","Facturé","Payé"]} />
+      <${Txt} id="fn" label="N° de facture" value=${f.numero} onChange=${v=>set("facture.numero",v)} />
+      <div className="f"><label htmlFor="fdt">Date de facture</label><input id="fdt" type="date" value=${f.date} onChange=${e=>set("facture.date",e.target.value)} /></div>
+    </div></div>
+    <div className="panel"><h3>Récapitulatif</h3><div className="lines">
+      <${Line} k="Honoraires client" v=${eur(f.honoraires)} /><${Line} k="Commission bancaire" v=${eur(f.commission)} />
+      <${Line} cls="total" k="Total rémunération" v=${eur(tot)} />
+      <${Line} k="Taux sur montant financé" v=${pct(tot/(calcDossier(d).emprunt||1))} /></div>
+      <div className="alert warn" style=${{marginTop:"12px"}}>Rappel IOBSP : aucun honoraire ne peut être perçu avant le déblocage des fonds (art. L519-6 du Code monétaire et financier). La convention d'honoraires doit être signée en amont.</div></div>
+  </div>`;
+}
+
+/* ---------- Facturation globale ---------- */
+function Facturation({dossiers,open}){
+  const rows=dossiers.map(d=>({d,tot:(+d.facture.honoraires||0)+(+d.facture.commission||0)}));
+  const sum=s=>rows.filter(r=>r.d.facture.statut===s).reduce((a,r)=>a+r.tot,0);
+  return html`<div>
+    <div className="head"><div><h1>Facturation</h1><p className="sub">Honoraires et commissions par dossier</p></div></div>
+    <div className="kpis">${["À venir","À facturer","Facturé","Payé"].map(s=>html`<div className="kpi" key=${s}><div className="v">${eur(sum(s))}</div><div className="l">${s}</div></div>`)}</div>
+    <div className="panel" style=${{padding:0}}><div className="tablewrap"><table>
+      <thead><tr><th>Dossier</th><th>Étape</th><th className="r">Honoraires</th><th className="r">Commission</th><th className="r">Total</th><th>Facture</th><th>Statut</th></tr></thead>
+      <tbody>${rows.map(({d,tot})=>html`<tr className="click" key=${d.id} onClick=${()=>open(d.id,"facture")}>
+        <td><strong>${nomDossier(d)}</strong><div className="muted num" style=${{fontSize:"12px"}}>${d.ref}</div></td>
+        <td><span className=${"pill "+stageTone(d.stage)}>${d.stage}</span></td>
+        <td className="r num">${eur(d.facture.honoraires)}</td><td className="r num">${eur(d.facture.commission)}</td><td className="r num"><strong>${eur(tot)}</strong></td>
+        <td className="num">${d.facture.numero||"—"} ${d.facture.date?html`<span className="muted">· ${fdate(d.facture.date)}</span>`:null}</td>
+        <td><span className=${"pill "+({"Payé":"ok","Facturé":"acc","À facturer":"warn"}[d.facture.statut]||"neutral")}>${d.facture.statut}</span></td></tr>`)}</tbody></table></div></div>
+  </div>`;
+}
+
+/* ---------- Simulateur capacité ---------- */
+function Capacite(){
+  const [s,setS]=useState({revenus:5200,charges:250,taux:3.3,duree:25,assu:0.10,apport:40000,nature:"ancien"});
+  const u=(k,v)=>setS({...s,[k]:v});
+  const mMax = Math.max(0,(+s.revenus||0)*HCSF_MAX-(+s.charges||0));
+  const n=(+s.duree||0)*12; const r=(+s.taux||0)/100/12; const a=(+s.assu||0)/100/12;
+  const facteur = (r===0?1/n:r/(1-Math.pow(1+r,-n))) + a;
+  const capa = n? mMax/facteur : 0;
+  const tx = s.nature==="ancien"?0.078:0.025;
+  const budget = (capa+(+s.apport||0))/(1+tx);
+  return html`<div>
+    <div className="head"><div><h1>Capacité d'emprunt</h1><p className="sub">Calcul rapide au plafond HCSF de 35 %, assurance comprise</p></div></div>
+    <div className="grid g2">
+      <div className="panel"><div className="fields">
+        <${Num} id="cr" label="Revenus nets du foyer" suffix="€/mois" value=${s.revenus} onChange=${v=>u("revenus",v)} />
+        <${Num} id="cc" label="Crédits conservés" suffix="€/mois" value=${s.charges} onChange=${v=>u("charges",v)} />
+        <${Num} id="ct" label="Taux" suffix="%" step="0.01" value=${s.taux} onChange=${v=>u("taux",v)} />
+        <${Num} id="cd" label="Durée" suffix="ans" value=${s.duree} onChange=${v=>u("duree",v)} />
+        <${Num} id="ca" label="Assurance" suffix="%" step="0.01" value=${s.assu} onChange=${v=>u("assu",v)} />
+        <${Num} id="cap" label="Apport" suffix="€" value=${s.apport} onChange=${v=>u("apport",v)} />
+        <${Sel} id="cn" label="Bien" value=${s.nature} onChange=${v=>u("nature",v)} options=${[["ancien","Ancien"],["neuf","Neuf / VEFA"]]} />
+      </div></div>
+      <div className="panel"><div className="lines">
+        <${Line} k="Mensualité maximale (35 %)" v=${eur2(mMax)} />
+        <${Line} cls="total" k="Capacité d'emprunt" v=${eur(capa)} />
+        <${Line} k="+ Apport" v=${eur(s.apport)} />
+        <${Line} cls="total" k="Prix de bien accessible (frais de notaire déduits)" v=${eur(budget)} />
+      </div>
+      ${+s.duree>25?html`<div className="alert warn" style=${{marginTop:"12px"}}>Au-delà de 25 ans, seuls les projets VEFA/construction ou avec gros travaux sont éligibles (27 ans max, différé inclus).</div>`:null}
+      <p className="muted" style=${{fontSize:"12px"}}>Hors garantie, frais de dossier et honoraires. Le reste à vivre et la politique de chaque banque restent déterminants.</p></div>
+    </div>
+  </div>`;
+}
+
+/* ---------- Nouveau dossier ---------- */
+function blankDossier(n){
+  return {id:uid(),ref:`D-${new Date().getFullYear()}-${String(n).padStart(3,"0")}`,stage:"Découverte",created:today(),situation:"Marié",enfants:0,epargne:0,
+    emprunteurs:[{nom:"Nouveau client",prenom:"",profession:"",contrat:"CDI",anciennete:"",revenus:0}],
+    charges:{loyer:0,credits:0,pension:0,autresRevenus:0},
+    projet:{type:"Résidence principale",nature:"ancien",ville:"",prix:0,travaux:0,notaireManuel:false,notaire:0,garantie:0,fraisDossier:0,honoraires:0,apport:0,duree:25,taux:3.3,tauxAssu:0.10,loyerAttendu:0},
+    docs:docsFrom([]),offres:[],facture:{honoraires:0,commission:0,statut:"À venir",numero:"",date:""},actions:[],notes:""};
+}
+
+/* ---------- App ---------- */
+function App(){
+  const [dossiers,setDossiers]=useState(load);
+  const [view,setView]=useState("dashboard");
+  const [cur,setCur]=useState(null);
+  const [msg,setMsg]=useState("");
+  useEffect(()=>save(dossiers),[dossiers]);
+  useEffect(()=>{ if(!msg) return; const t=setTimeout(()=>setMsg(""),2200); return ()=>clearTimeout(t); },[msg]);
+  const open=(id)=>{ setCur(id); setView("fiche"); window.scrollTo(0,0); };
+  const go=v=>{ if(v==="new"){ const d=blankDossier(dossiers.length+47); setDossiers([d,...dossiers]); open(d.id); setMsg("Dossier créé"); return; } setView(v); window.scrollTo(0,0); };
+  const update=n=>setDossiers(ds=>ds.map(d=>d.id===n.id?n:d));
+  const remove=()=>{ setDossiers(ds=>ds.filter(d=>d.id!==cur)); setView("dossiers"); setMsg("Dossier supprimé"); };
+  const reset=()=>{ setDossiers(SAMPLE); setView("dashboard"); setMsg("Données d'exemple restaurées"); };
+  const d=dossiers.find(x=>x.id===cur);
+  const nav=[["dashboard","Tableau de bord",null],["dossiers","Dossiers",dossiers.length],["capacite","Capacité",null],["facturation","Facturation",null]];
+  const active = view==="fiche"?"dossiers":view;
+  return html`<div className="app">
+    <aside className="side"><div className="brand">Nexa<small>Courtage IOBSP</small></div>
+      <nav className="nav">${nav.map(([k,l,n])=>html`<button key=${k} aria-current=${active===k?"page":undefined} onClick=${()=>go(k)}>${l}${n!==null?html`<span className="count">${n}</span>`:null}</button>`)}</nav>
+      <div className="side-foot">Données stockées uniquement dans ce navigateur. Ne saisissez pas de données clients réelles tant que l'hébergement n'est pas conforme RGPD.<br/><button className="btn ghost small" style=${{padding:"4px 0",marginTop:"6px"}} onClick=${reset}>Restaurer l'exemple</button></div>
+    </aside>
+    <main>
+      ${view==="dashboard"&&html`<${Dashboard} dossiers=${dossiers} open=${open} go=${go} />`}
+      ${view==="dossiers"&&html`<${Liste} dossiers=${dossiers} open=${open} go=${go} />`}
+      ${view==="capacite"&&html`<${Capacite} />`}
+      ${view==="facturation"&&html`<${Facturation} dossiers=${dossiers} open=${open} />`}
+      ${view==="fiche"&&d&&html`<${Fiche} key=${d.id} d=${d} update=${update} remove=${remove} back=${()=>go("dossiers")} toast=${setMsg} />`}
+    </main>
+    ${msg&&html`<div className="toast" role="status">${msg}</div>`}
+  </div>`;
+}
+ReactDOM.createRoot(document.getElementById("root")).render(html`<${App} />`);
+</script>

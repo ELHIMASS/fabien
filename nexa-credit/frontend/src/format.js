@@ -1,0 +1,12 @@
+const nf0 = new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 });
+const nf2 = new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR", minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export const eur = v => nf0.format(Number.isFinite(+v) ? +v : 0);
+export const eur2 = v => nf2.format(Number.isFinite(+v) ? +v : 0);
+export const pct = (v, d = 1) => `${((+v || 0) * 100).toLocaleString("fr-FR", { maximumFractionDigits: d })} %`;
+export const taux = v => `${(+v || 0).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 3 })} %`;
+export const fdate = s => (s ? new Date(s.length === 10 ? s + "T12:00" : s).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" }) : "—");
+export const fdatetime = s => (s ? new Date(s).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" }) : "—");
+export const today = () => new Date().toISOString().slice(0, 10);
+export const ETAPES = ["Découverte", "Montage", "En banque", "Accord", "Offre émise", "Signé notaire", "Facturé", "Abandonné"];
+export const etapeTone = e => ({ "Abandonné": "neutral", "Facturé": "ok", "Signé notaire": "ok", "Offre émise": "acc", "Accord": "acc", "En banque": "warn" }[e] || "neutral");
+export const endettementTone = (t, plafond = 0.35) => (t > plafond ? "bad" : t > plafond - 0.02 ? "warn" : "ok");

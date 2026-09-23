@@ -42,6 +42,10 @@ Voir **[INSTALLATION-NAS.md](INSTALLATION-NAS.md)** : conteneur Docker, accès H
 
 ## Démarrage local
 
+**Windows** : double-cliquer sur `NEXA.bat` (installe ce qui manque au premier lancement, puis ouvre le navigateur). `NEXA.bat demo` ajoute le cabinet de démonstration.
+
+**Mac / Linux** :
+
 ```bash
 ./demarrer.sh --demo     # compte démo : demo@nexa-credit.fr / DemoNexa2026!
 ```
